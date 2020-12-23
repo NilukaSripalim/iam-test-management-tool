@@ -1,0 +1,30 @@
+package org.iam.test.mgt.tool.repository;
+
+import org.iam.test.mgt.tool.domain.EcTestcase;
+import org.iam.test.mgt.tool.domain.EcTestfolder;
+import java.util.List;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+
+public interface TestCaseRepository extends CrudRepository<EcTestcase, Long> {
+
+    public List<EcTestcase> findAllByFolderIdOrderByIdAsc(EcTestfolder folderId);
+
+    @Query(value = "select a.* from ec_testcase a, ec_testplan_testcase_mapping b where a.id = b.testcase_id and b.testplan_id = :testPlanId", nativeQuery = true)
+    public List<EcTestcase> findAllTestCasesByTestPlanId(@Param("testPlanId") Long testPlanId);
+
+    public EcTestcase findByIdAndFolderId(Long id, EcTestfolder folder);
+
+    @Query(value = "SELECT count(*) FROM ec_testcase where automated = true", nativeQuery = true)
+    public Integer automationCnt();
+
+    @Query(value = "SELECT count(*) FROM ec_testcase where enabled = 1", nativeQuery = true)
+    public Integer getCountOfActiveTestcases();
+
+    public List<EcTestcase> findByNameContainingOrDescriptionContainingOrderByIdDesc(String nameKey, String descKey);
+
+    @Query(value = "select a.* from  ec_testcase a  ,ec_testplan_testcase_mapping b where a.id=b.testcase_id and b.testplan_id=:testPlanId and a.folder_id=:folderId", nativeQuery = true)
+    public List<EcTestcase> findAllTestCasesByTestPlanIdAndTestFolderId(@Param("testPlanId") Long testPlanId, @Param("folderId") Long folderId);
+
+}
